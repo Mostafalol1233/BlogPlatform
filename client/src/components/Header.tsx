@@ -4,7 +4,8 @@ import { Button } from "@/components/ui/button";
 import { useTheme } from "./ThemeProvider";
 import { useLanguage } from "./LanguageProvider";
 import { useState } from "react";
-import logoImage from "@assets/generated_images/Bimora_favicon_icon_f416a2cf.png";
+import logoImageLight from "@assets/generated_images/Bimora_logo_white_background_ce119e96.png";
+import logoImageDark from "@assets/generated_images/Bimora_logo_black_background_fc1e3a58.png";
 
 export function Header() {
   const { theme, toggleTheme } = useTheme();
@@ -31,7 +32,7 @@ export function Header() {
         <div className="flex h-16 md:h-20 items-center justify-between gap-4">
           <Link href="/" className="flex items-center space-x-2" data-testid="link-logo">
             <img 
-              src={logoImage} 
+              src={theme === "light" ? logoImageLight : logoImageDark} 
               alt="Bimora Gaming Blog" 
               className="h-10 md:h-12 w-auto object-contain"
               data-testid="img-logo"

@@ -29,6 +29,10 @@ const apiLimiter = rateLimit({
 });
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  // Ensure storage is initialized before handling any requests
+  const { initializeStorage } = await import("./storage");
+  await initializeStorage();
+
   // Auth routes
   app.post("/api/auth/login", async (req, res) => {
     try {

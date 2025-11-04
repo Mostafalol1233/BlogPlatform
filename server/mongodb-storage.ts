@@ -126,10 +126,9 @@ export class MongoDBStorage implements IStorage {
   constructor() {
     this.mercenaries = new Map();
     this.initializeMercenaries();
-    this.connect();
   }
 
-  private async connect() {
+  async initialize() {
     if (!this.initialized) {
       await connectMongoDB();
       this.initialized = true;

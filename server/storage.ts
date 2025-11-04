@@ -4,3 +4,7 @@ export type { IStorage, NewsItem, Mercenary } from "./mongodb-storage";
 export { MongoDBStorage };
 
 export const storage = new MongoDBStorage();
+
+export async function initializeStorage() {
+  await storage.initialize();
+}

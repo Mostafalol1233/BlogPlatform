@@ -4,8 +4,8 @@ import { Button } from "@/components/ui/button";
 import { useTheme } from "./ThemeProvider";
 import { useLanguage } from "./LanguageProvider";
 import { useState } from "react";
-import logoImageLight from "@assets/generated_images/Bimora_logo_white_background_ce119e96.png";
-import logoImageDark from "@assets/generated_images/Bimora_logo_black_background_fc1e3a58.png";
+import logoImageLight from "@assets/generated_images/Bimora_gaming_logo_white_aa94d8d8.png";
+import logoImageDark from "@assets/generated_images/Bimora_gaming_logo_black_718a3578.png";
 
 export function Header() {
   const { theme, toggleTheme } = useTheme();
@@ -34,7 +34,7 @@ export function Header() {
             <img 
               src={theme === "light" ? logoImageLight : logoImageDark} 
               alt="Bimora Gaming Blog" 
-              className="h-10 md:h-12 w-auto object-contain"
+              className="h-12 md:h-16 w-auto object-contain"
               data-testid="img-logo"
             />
           </Link>

@@ -326,23 +326,37 @@ export class MongoDBStorage implements IStorage {
   }
 
   async getAllTickets(): Promise<Ticket[]> {
-    const tickets = await TicketModel.find().sort({ createdAt: -1 });
-    return tickets;
+    const tickets = await TicketModel.find().sort({ createdAt: -1 }).lean();
+    return tickets.map(ticket => ({
+      ...ticket,
+      id: String(ticket._id),
+    })) as any;
   }
 
   async getTicketById(id: string): Promise<Ticket | undefined> {
-    const ticket = await TicketModel.findById(id);
-    return ticket || undefined;
+    const ticket = await TicketModel.findById(id).lean();
+    if (!ticket) return undefined;
+    return {
+      ...ticket,
+      id: String(ticket._id),
+    } as any;
   }
 
   async getTicketsByEmail(email: string): Promise<Ticket[]> {
-    const tickets = await TicketModel.find({ userEmail: email }).sort({ createdAt: -1 });
-    return tickets;
+    const tickets = await TicketModel.find({ userEmail: email }).sort({ createdAt: -1 }).lean();
+    return tickets.map(ticket => ({
+      ...ticket,
+      id: String(ticket._id),
+    })) as any;
   }
 
   async createTicket(ticket: InsertTicket): Promise<Ticket> {
     const newTicket = await TicketModel.create(ticket);
-    return newTicket;
+    const ticketObj = await TicketModel.findById(newTicket._id).lean();
+    return {
+      ...ticketObj,
+      id: String(ticketObj!._id),
+    } as any;
   }
 
   async updateTicket(id: string, ticket: Partial<InsertTicket>): Promise<Ticket | undefined> {
@@ -350,8 +364,12 @@ export class MongoDBStorage implements IStorage {
       id,
       { ...ticket, updatedAt: new Date() },
       { new: true }
-    );
-    return updated || undefined;
+    ).lean();
+    if (!updated) return undefined;
+    return {
+      ...updated,
+      id: String(updated._id),
+    } as any;
   }
 
   async deleteTicket(id: string): Promise<boolean> {

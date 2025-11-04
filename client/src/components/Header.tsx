@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { useTheme } from "./ThemeProvider";
 import { useLanguage } from "./LanguageProvider";
 import { useState } from "react";
+import logoImage from "@assets/generated_images/Bimora_gaming_header_logo_25257491.png";
 
 export function Header() {
   const { theme, toggleTheme } = useTheme();
@@ -28,10 +29,13 @@ export function Header() {
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80">
       <div className="max-w-7xl mx-auto px-4 md:px-8">
         <div className="flex h-16 md:h-20 items-center justify-between gap-4">
-          <Link href="/" className="flex items-center space-x-2">
-            <span className="text-2xl font-bold bg-gradient-to-r from-primary to-destructive bg-clip-text text-transparent">
-              Bimora
-            </span>
+          <Link href="/" className="flex items-center space-x-2" data-testid="link-logo">
+            <img 
+              src={logoImage} 
+              alt="Bimora Gaming Blog" 
+              className="h-10 md:h-12 w-auto object-contain"
+              data-testid="img-logo"
+            />
           </Link>
 
           <nav className="hidden md:flex items-center space-x-6">

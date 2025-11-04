@@ -2,8 +2,10 @@ import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Star, Mail, Phone, MessageCircle, Globe, ExternalLink } from "lucide-react";
 import { SiDiscord } from "react-icons/si";
+import { useState } from "react";
 
 interface Seller {
   id: string;
@@ -27,8 +29,16 @@ export default function Sellers() {
     queryKey: ["/api/sellers"],
   });
 
+  const [selectedSeller, setSelectedSeller] = useState<Seller | null>(null);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+
   const featuredSellers = sellers.filter(s => s.featured);
   const regularSellers = sellers.filter(s => !s.featured);
+
+  const openSellerDialog = (seller: Seller) => {
+    setSelectedSeller(seller);
+    setIsDialogOpen(true);
+  };
 
   const renderStars = (rating: number) => {
     return (
@@ -48,7 +58,11 @@ export default function Sellers() {
   };
 
   const SellerCard = ({ seller }: { seller: Seller }) => (
-    <Card className="hover-elevate" data-testid={`card-seller-${seller.id}`}>
+    <Card 
+      className="hover-elevate cursor-pointer" 
+      data-testid={`card-seller-${seller.id}`}
+      onClick={() => openSellerDialog(seller)}
+    >
       <CardHeader>
         <div className="flex items-start justify-between">
           <div>
@@ -60,7 +74,7 @@ export default function Sellers() {
                 </Badge>
               )}
             </CardTitle>
-            <CardDescription className="mt-2">{seller.description}</CardDescription>
+            <CardDescription className="mt-2 line-clamp-2">{seller.description}</CardDescription>
           </div>
         </div>
       </CardHeader>
@@ -73,6 +87,7 @@ export default function Sellers() {
                 src={image}
                 alt={`${seller.name} ${idx + 1}`}
                 className="w-full h-32 object-cover rounded-md"
+                data-testid={`img-seller-${seller.id}-${idx}`}
               />
             ))}
           </div>
@@ -108,73 +123,9 @@ export default function Sellers() {
           </div>
         )}
 
-        <div className="space-y-2 pt-2 border-t">
-          <p className="text-sm font-semibold">Contact Information:</p>
-          <div className="grid grid-cols-1 gap-2">
-            {seller.email && (
-              <Button
-                variant="outline"
-                size="sm"
-                className="justify-start"
-                onClick={() => window.open(`mailto:${seller.email}`, '_blank')}
-                data-testid={`button-email-${seller.id}`}
-              >
-                <Mail className="h-4 w-4 mr-2" />
-                {seller.email}
-              </Button>
-            )}
-            {seller.phone && (
-              <Button
-                variant="outline"
-                size="sm"
-                className="justify-start"
-                onClick={() => window.open(`tel:${seller.phone}`, '_blank')}
-                data-testid={`button-phone-${seller.id}`}
-              >
-                <Phone className="h-4 w-4 mr-2" />
-                {seller.phone}
-              </Button>
-            )}
-            {seller.whatsapp && (
-              <Button
-                variant="outline"
-                size="sm"
-                className="justify-start"
-                onClick={() => window.open(`https://wa.me/${seller.whatsapp.replace(/[^0-9]/g, '')}`, '_blank')}
-                data-testid={`button-whatsapp-${seller.id}`}
-              >
-                <MessageCircle className="h-4 w-4 mr-2" />
-                WhatsApp
-              </Button>
-            )}
-            {seller.discord && (
-              <Button
-                variant="outline"
-                size="sm"
-                className="justify-start"
-                data-testid={`button-discord-${seller.id}`}
-              >
-                <SiDiscord className="h-4 w-4 mr-2" />
-                {seller.discord}
-              </Button>
-            )}
-            {seller.website && (
-              <Button
-                variant="outline"
-                size="sm"
-                className="justify-start"
-                onClick={() => window.open(seller.website.startsWith('http') ? seller.website : `https://${seller.website}`, '_blank')}
-                data-testid={`button-website-${seller.id}`}
-              >
-                <Globe className="h-4 w-4 mr-2" />
-                Visit Website
-                <ExternalLink className="h-3 w-3 ml-auto" />
-              </Button>
-            )}
-            {!seller.email && !seller.phone && !seller.whatsapp && !seller.discord && !seller.website && (
-              <p className="text-sm text-muted-foreground">No contact information available</p>
-            )}
-          </div>
+        <div className="flex items-center justify-between text-sm text-muted-foreground pt-2 border-t">
+          <span>Click to view details</span>
+          <ExternalLink className="h-4 w-4" />
         </div>
       </CardContent>
     </Card>
@@ -234,6 +185,157 @@ export default function Sellers() {
           </Card>
         )}
       </div>
+
+      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+        <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto" data-testid="dialog-seller-details">
+          {selectedSeller && (
+            <div className="space-y-6">
+              <DialogHeader>
+                <DialogTitle className="flex items-center gap-2 text-2xl">
+                  {selectedSeller.name}
+                  {selectedSeller.featured && (
+                    <Badge variant="default" data-testid={`dialog-badge-featured-${selectedSeller.id}`}>
+                      Featured
+                    </Badge>
+                  )}
+                </DialogTitle>
+                <DialogDescription className="text-base">
+                  {selectedSeller.description}
+                </DialogDescription>
+              </DialogHeader>
+
+              {selectedSeller.images.length > 0 && (
+                <div className="space-y-3">
+                  <h3 className="font-semibold">Images</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {selectedSeller.images.map((image, idx) => (
+                      <img
+                        key={idx}
+                        src={image}
+                        alt={`${selectedSeller.name} ${idx + 1}`}
+                        className="w-full h-48 object-cover rounded-md"
+                        data-testid={`dialog-img-seller-${selectedSeller.id}-${idx}`}
+                      />
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {selectedSeller.promotionText && (
+                <div className="bg-primary/10 border border-primary/20 rounded-md p-4">
+                  <h3 className="font-semibold mb-2">Promotion</h3>
+                  <p className="text-sm text-primary">{selectedSeller.promotionText}</p>
+                </div>
+              )}
+
+              <div className="flex items-center justify-between pt-2 border-t">
+                {renderStars(Math.round(selectedSeller.averageRating))}
+                <span className="text-sm font-medium">
+                  {selectedSeller.averageRating.toFixed(1)} ({selectedSeller.totalReviews} reviews)
+                </span>
+              </div>
+
+              {selectedSeller.prices.length > 0 && (
+                <div className="space-y-3 pt-2 border-t">
+                  <h3 className="font-semibold">Sample Prices</h3>
+                  <div className="grid grid-cols-1 gap-2">
+                    {selectedSeller.prices.map((price, idx) => (
+                      <div
+                        key={idx}
+                        className="flex justify-between items-center text-sm bg-muted/50 rounded px-3 py-2"
+                      >
+                        <span className="text-muted-foreground">{price.item}</span>
+                        <span className="font-semibold">${price.price}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              <div className="space-y-3 pt-2 border-t">
+                <h3 className="font-semibold">Contact Information</h3>
+                <div className="grid grid-cols-1 gap-2">
+                  {selectedSeller.email && (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="justify-start"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        window.open(`mailto:${selectedSeller.email}`, '_blank');
+                      }}
+                      data-testid={`dialog-button-email-${selectedSeller.id}`}
+                    >
+                      <Mail className="h-4 w-4 mr-2" />
+                      {selectedSeller.email}
+                    </Button>
+                  )}
+                  {selectedSeller.phone && (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="justify-start"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        window.open(`tel:${selectedSeller.phone}`, '_blank');
+                      }}
+                      data-testid={`dialog-button-phone-${selectedSeller.id}`}
+                    >
+                      <Phone className="h-4 w-4 mr-2" />
+                      {selectedSeller.phone}
+                    </Button>
+                  )}
+                  {selectedSeller.whatsapp && (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="justify-start"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        window.open(`https://wa.me/${selectedSeller.whatsapp.replace(/[^0-9]/g, '')}`, '_blank');
+                      }}
+                      data-testid={`dialog-button-whatsapp-${selectedSeller.id}`}
+                    >
+                      <MessageCircle className="h-4 w-4 mr-2" />
+                      WhatsApp
+                    </Button>
+                  )}
+                  {selectedSeller.discord && (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="justify-start"
+                      data-testid={`dialog-button-discord-${selectedSeller.id}`}
+                    >
+                      <SiDiscord className="h-4 w-4 mr-2" />
+                      {selectedSeller.discord}
+                    </Button>
+                  )}
+                  {selectedSeller.website && (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="justify-start"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        window.open(selectedSeller.website.startsWith('http') ? selectedSeller.website : `https://${selectedSeller.website}`, '_blank');
+                      }}
+                      data-testid={`dialog-button-website-${selectedSeller.id}`}
+                    >
+                      <Globe className="h-4 w-4 mr-2" />
+                      Visit Website
+                      <ExternalLink className="h-3 w-3 ml-auto" />
+                    </Button>
+                  )}
+                  {!selectedSeller.email && !selectedSeller.phone && !selectedSeller.whatsapp && !selectedSeller.discord && !selectedSeller.website && (
+                    <p className="text-sm text-muted-foreground">No contact information available</p>
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

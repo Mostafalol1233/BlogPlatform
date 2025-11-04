@@ -58,7 +58,6 @@ import {
 import { useLocation } from "wouter";
 import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
-import { ScraperManager } from "@/components/ScraperManager";
 
 export default function Admin() {
   const [, setLocation] = useLocation();
@@ -916,7 +915,6 @@ export default function Admin() {
           </TabsContent>
 
           <TabsContent value="events-news" className="space-y-6" data-testid="content-events-news">
-            <ScraperManager />
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
               <div>
                 <div className="flex items-center justify-between mb-4">
